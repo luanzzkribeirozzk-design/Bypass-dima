@@ -1,9 +1,7 @@
 package com.eightball.pool
 
-import android.content.Context
 import android.util.Log
 import rikka.shizuku.Shizuku
-import rikka.shizuku.ShizukuRemoteProcess
 
 object ShizukuHelper {
 
