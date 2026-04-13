@@ -6,7 +6,6 @@ import android.graphics.PixelFormat
 import android.os.IBinder
 import android.util.Log
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -49,7 +48,6 @@ class FloatingViewService : Service() {
             params.x = 0
             params.y = 100
 
-            // Create a simple floating button
             val layout = LinearLayout(this)
             layout.orientation = LinearLayout.VERTICAL
 
