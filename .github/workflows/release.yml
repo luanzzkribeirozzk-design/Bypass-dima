@@ -27,14 +27,7 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Update version in build.gradle
-        run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          VERSION_CODE=$(echo $VERSION | tr -d 'v.' | sed 's/^0*//')
-          sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" app/build.gradle
-          sed -i "s/versionCode .*/versionCode $VERSION_CODE/" app/build.gradle
-
-      - name: Build Release APK (signed)
+      - name: Build Release APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -60,13 +53,7 @@ jobs:
           name: "LN BYPASS ${{ steps.get_version.outputs.VERSION }}"
           body: |
             ## LN BYPASS ${{ steps.get_version.outputs.VERSION }}
-            
-            ### Download
             Download the APK below and install on your Android device.
-            
-            ### Requirements
-            - Android 5.0 (API 21) or higher
-            - Allow installation from unknown sources
           files: |
             app/build/outputs/apk/release/*.apk
           draft: false
