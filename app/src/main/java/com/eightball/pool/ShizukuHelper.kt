@@ -11,12 +11,12 @@ object ShizukuHelper {
     } catch (e: Exception) { false }
     fun requestShizukuPermission(listener: Shizuku.OnRequestPermissionResultListener) {
         try { Shizuku.addRequestPermissionResultListener(listener); Shizuku.requestPermission(SHIZUKU_PERMISSION_CODE) }
-        catch (e: Exception) { Log.e(TAG, "Error: ${e.message}") }
+        catch (e: Exception) { Log.e(TAG, "${e.message}") }
     }
     fun executeCommand(command: String): String = try {
         if (!isShizukuAvailable()) return executeWithRuntime(command)
         if (!hasShizukuPermission()) return "No Shizuku permission"
-        val p = Shizuku.newProcess(arrayOf("sh","-c",command),null,null)
+        val p = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
         val out = p.inputStream.bufferedReader().readText()
         val err = p.errorStream.bufferedReader().readText()
         p.waitFor(); out.ifEmpty { err }
@@ -24,7 +24,7 @@ object ShizukuHelper {
     fun executeScript(scriptPath: String) = executeCommand("sh $scriptPath")
     fun executeRish(rishPath: String, scriptPath: String) = executeCommand("sh $rishPath $scriptPath")
     private fun executeWithRuntime(command: String): String = try {
-        val p = Runtime.getRuntime().exec(arrayOf("sh","-c",command))
+        val p = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
         val out = p.inputStream.bufferedReader().readText(); p.waitFor(); out
     } catch (e: Exception) { "Error: ${e.message}" }
 }
