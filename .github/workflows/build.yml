@@ -25,37 +25,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Build Release APK
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env:
-          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          if [ -n "$KEYSTORE_FILE" ]; then
-            echo "$KEYSTORE_FILE" | base64 --decode > keystore.jks
-            export KEYSTORE_FILE=$(pwd)/keystore.jks
-            ./gradlew assembleRelease --stacktrace
-          else
-            echo "No keystore configured, building unsigned release"
-            ./gradlew assembleRelease --stacktrace
-          fi
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: LN-BYPASS-debug
           path: app/build/outputs/apk/debug/*.apk
-          retention-days: 30
-
-      - name: Upload Release APK
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        uses: actions/upload-artifact@v4
-        with:
-          name: LN-BYPASS-release
-          path: app/build/outputs/apk/release/*.apk
           retention-days: 30
