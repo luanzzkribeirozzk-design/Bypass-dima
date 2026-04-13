@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">8 Ball Pool</string>
-    <string name="app_description">LN BYPASS - O melhor bypass!</string>
+    <string name="app_description">LN BYPASS</string>
     <string name="btn_bypass_dima">Bypass Diamantes</string>
     <string name="btn_hide_stream">Hide Stream</string>
     <string name="status_ready">Pronto para Aplicar</string>
