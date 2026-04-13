@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#0A0A0A">
 
-    <!-- Header com Gradiente -->
     <View
         android:id="@+id/header_bg"
         android:layout_width="match_parent"
@@ -34,7 +33,6 @@
         android:textColor="#B0B0B0"
         android:textSize="14sp" />
 
-    <!-- Card de Status -->
     <androidx.cardview.widget.CardView
         android:id="@+id/status_card"
         android:layout_width="match_parent"
@@ -81,7 +79,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Terminal de Logs -->
     <androidx.cardview.widget.CardView
         android:id="@+id/log_card"
         android:layout_width="match_parent"
@@ -103,13 +100,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:text="> Inicializando LN BYPASS...\n> Aguardando permissões..."
+                android:text="> Inicializando LN BYPASS...&#10;> Aguardando permissões..."
                 android:textColor="#00FF00"
                 android:textSize="12sp" />
         </ScrollView>
     </androidx.cardview.widget.CardView>
 
-    <!-- Botões de Ação -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -143,7 +139,6 @@
 
     </LinearLayout>
 
-    <!-- Footer -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
