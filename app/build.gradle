@@ -3,10 +3,10 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 android {
-    namespace 'com.eightball.pool'
+    namespace 'com.ln.bypass'
     compileSdk 33
     defaultConfig {
-        applicationId "com.eightball.pool"
+        applicationId "com.ln.bypass"
         minSdk 24
         targetSdk 33
         versionCode 1
