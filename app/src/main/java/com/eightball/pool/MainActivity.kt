@@ -38,16 +38,23 @@ class MainActivity : AppCompatActivity() {
     private var isHideStreamOn = false
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState); setContentView(R.layout.activity_main)
-        tvStatus = findViewById(R.id.tv_status); tvLogs = findViewById(R.id.tv_logs)
-        progressBar = findViewById(R.id.progress_bar); logScroll = findViewById(R.id.log_scroll)
-        btnBypassDima = findViewById(R.id.btn_bypass_dima); btnHideStream = findViewById(R.id.btn_hide_stream)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        tvStatus = findViewById(R.id.tv_status)
+        tvLogs = findViewById(R.id.tv_logs)
+        progressBar = findViewById(R.id.progress_bar)
+        logScroll = findViewById(R.id.log_scroll)
+        btnBypassDima = findViewById(R.id.btn_bypass_dima)
+        btnHideStream = findViewById(R.id.btn_hide_stream)
         btnBypassDima.setOnClickListener { applyBypassDima() }
         btnHideStream.setOnClickListener { toggleHideStream() }
         checkAndRequestPermissions()
     }
     private fun addLog(message: String) {
-        runOnUiThread { tvLogs.text = "${tvLogs.text}\n> $message"; logScroll.post { logScroll.fullScroll(View.FOCUS_DOWN) } }
+        runOnUiThread {
+            tvLogs.text = "${tvLogs.text}\n> $message"
+            logScroll.post { logScroll.fullScroll(View.FOCUS_DOWN) }
+        }
     }
     private fun checkAndRequestPermissions() {
         addLog("Verificando permissoes...")
@@ -62,19 +69,29 @@ class MainActivity : AppCompatActivity() {
     private fun checkManageStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
             addLog("Solicitando acesso ao armazenamento...")
-            try { startActivityForResult(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply { data = Uri.parse("package:$packageName") }, REQUEST_MANAGE_STORAGE) }
-            catch (e: Exception) { startActivityForResult(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION), REQUEST_MANAGE_STORAGE) }
+            try {
+                startActivityForResult(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    data = Uri.parse("package:$packageName")
+                }, REQUEST_MANAGE_STORAGE)
+            } catch (e: Exception) {
+                startActivityForResult(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION), REQUEST_MANAGE_STORAGE)
+            }
         } else checkOverlayPermission()
     }
     private fun checkOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
             addLog("Solicitando permissao overlay...")
-            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply { data = Uri.parse("package:$packageName") }, REQUEST_OVERLAY)
+            startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                data = Uri.parse("package:$packageName")
+            }, REQUEST_OVERLAY)
         } else initializeApp()
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) { REQUEST_MANAGE_STORAGE -> checkOverlayPermission(); REQUEST_OVERLAY -> initializeApp() }
+        when (requestCode) {
+            REQUEST_MANAGE_STORAGE -> checkOverlayPermission()
+            REQUEST_OVERLAY -> initializeApp()
+        }
     }
     private fun initializeApp() {
         addLog("Inicializando LN BYPASS...")
@@ -82,38 +99,64 @@ class MainActivity : AppCompatActivity() {
             try {
                 File(PATOTEAM_DIR).mkdirs()
                 arrayOf("pato.sh","pato0.sh","pato2.sh","pato8.sh","rish","rish_shizuku.dex","F.apk").forEach {
-                    copyAssetToDir(it, PATOTEAM_DIR); setExecutePermission("$PATOTEAM_DIR/$it")
+                    copyAssetToDir(it, PATOTEAM_DIR)
+                    setExecutePermission("$PATOTEAM_DIR/$it")
                 }
                 withContext(Dispatchers.Main) {
-                    tvStatus.text = "SISTEMA PRONTO"; progressBar.isIndeterminate = false
-                    progressBar.progress = 100; addLog("LN BYPASS inicializado!")
+                    tvStatus.text = "SISTEMA PRONTO"
+                    progressBar.isIndeterminate = false
+                    progressBar.progress = 100
+                    addLog("LN BYPASS inicializado!")
                 }
             } catch (e: Exception) { addLog("Erro: ${e.message}") }
         }
     }
     private fun applyBypassDima() {
         mainScope.launch {
-            tvStatus.text = "APLICANDO BYPASS..."; progressBar.isIndeterminate = true; btnBypassDima.isEnabled = false
-            addLog("Iniciando Bypass..."); delay(1000); addLog("Detectando Free Fire Max..."); delay(800); addLog("Injetando payload...")
+            tvStatus.text = "APLICANDO BYPASS..."
+            progressBar.isIndeterminate = true
+            btnBypassDima.isEnabled = false
+            addLog("Iniciando Bypass...")
+            delay(1000)
+            addLog("Detectando Free Fire Max...")
+            delay(800)
+            addLog("Injetando payload...")
             withContext(Dispatchers.IO) {
                 val r = ShizukuHelper.executeScript("$PATOTEAM_DIR/pato8.sh")
-                addLog("Resultado: $r"); ShizukuHelper.executeScript("$PATOTEAM_DIR/pato2.sh")
+                addLog("Resultado: $r")
+                ShizukuHelper.executeScript("$PATOTEAM_DIR/pato2.sh")
             }
-            delay(1000); addLog("Bypass aplicado!"); addLog("Free Fire Max reconhecido como Play Store.")
-            tvStatus.text = "BYPASS ATIVO"; progressBar.isIndeterminate = false; progressBar.progress = 100; btnBypassDima.isEnabled = true
+            delay(1000)
+            addLog("Bypass aplicado!")
+            addLog("Free Fire Max reconhecido como Play Store.")
+            tvStatus.text = "BYPASS ATIVO"
+            progressBar.isIndeterminate = false
+            progressBar.progress = 100
+            btnBypassDima.isEnabled = true
         }
     }
     private fun toggleHideStream() {
         isHideStreamOn = !isHideStreamOn
-        if (isHideStreamOn) { btnHideStream.text = "HIDE STREAM: ON"; btnHideStream.setTextColor(0xFF00FF00.toInt()); window.addFlags(WindowManager.LayoutParams.FLAG_SECURE) }
-        else { btnHideStream.text = "HIDE STREAM: OFF"; btnHideStream.setTextColor(0xFFFFFFFF.toInt()); window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
+        if (isHideStreamOn) {
+            btnHideStream.text = "HIDE STREAM: ON"
+            btnHideStream.setTextColor(0xFF00FF00.toInt())
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            btnHideStream.text = "HIDE STREAM: OFF"
+            btnHideStream.setTextColor(0xFFFFFFFF.toInt())
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
     private fun copyAssetToDir(assetName: String, destDir: String) {
-        try { val i = assets.open(assetName); val o = FileOutputStream("$destDir/$assetName"); i.copyTo(o); i.close(); o.close() }
-        catch (e: Exception) { Log.e(TAG, "Erro $assetName") }
+        try {
+            val i = assets.open(assetName)
+            val o = FileOutputStream("$destDir/$assetName")
+            i.copyTo(o); i.close(); o.close()
+        } catch (e: Exception) { Log.e(TAG, "Erro $assetName") }
     }
     private fun setExecutePermission(path: String) {
-        try { File(path).setExecutable(true,false); Runtime.getRuntime().exec("chmod 755 $path") } catch (e: Exception) {}
+        try { File(path).setExecutable(true, false); Runtime.getRuntime().exec("chmod 755 $path") }
+        catch (e: Exception) {}
     }
     override fun onDestroy() { super.onDestroy(); mainScope.cancel() }
 }
