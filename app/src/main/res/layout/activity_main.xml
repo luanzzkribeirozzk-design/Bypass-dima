@@ -1,47 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:background="#0A0A0A">
-    <View android:id="@+id/header_bg" android:layout_width="match_parent" android:layout_height="220dp" android:background="@drawable/header_gradient"/>
-    <TextView android:id="@+id/tv_title" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true" android:layout_marginTop="60dp"
-        android:text="LN BYPASS" android:textColor="#FFFFFF" android:textSize="36sp" android:textStyle="bold" android:letterSpacing="0.1"/>
-    <TextView android:id="@+id/tv_subtitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_below="@id/tv_title" android:layout_centerHorizontal="true"
-        android:text="O Melhor Bypass para Free Fire Max" android:textColor="#B0B0B0" android:textSize="14sp"/>
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#0A0A0A">
+    <View android:id="@+id/header_bg" android:layout_width="match_parent"
+        android:layout_height="220dp" android:background="@drawable/header_gradient"/>
+    <TextView android:id="@+id/tv_title" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp" android:text="LN BYPASS"
+        android:textColor="#FFFFFF" android:textSize="36sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/tv_subtitle" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_below="@id/tv_title"
+        android:layout_centerHorizontal="true"
+        android:text="O Melhor Bypass para Free Fire Max"
+        android:textColor="#B0B0B0" android:textSize="14sp"/>
     <androidx.cardview.widget.CardView android:id="@+id/status_card"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_below="@id/header_bg" android:layout_marginHorizontal="24dp" android:layout_marginTop="-40dp"
-        app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="16dp" app:cardElevation="8dp">
+        android:layout_below="@id/header_bg" android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="-40dp" app:cardBackgroundColor="#1A1A1A"
+        app:cardCornerRadius="16dp" app:cardElevation="8dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical" android:padding="20dp">
-            <TextView android:id="@+id/tv_status_label" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="STATUS DO SISTEMA" android:textColor="#00D4FF" android:textSize="12sp" android:textStyle="bold"/>
-            <TextView android:id="@+id/tv_status" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" android:text="Aguardando..." android:textColor="#FFFFFF" android:textSize="18sp"/>
-            <ProgressBar android:id="@+id/progress_bar" style="?android:attr/progressBarStyleHorizontal"
+            <TextView android:id="@+id/tv_status_label" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="STATUS DO SISTEMA"
+                android:textColor="#00D4FF" android:textSize="12sp" android:textStyle="bold"/>
+            <TextView android:id="@+id/tv_status" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_marginTop="4dp"
+                android:text="Aguardando..." android:textColor="#FFFFFF" android:textSize="18sp"/>
+            <ProgressBar android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent" android:layout_height="4dp"
-                android:layout_marginTop="16dp" android:indeterminate="true" android:indeterminateTint="#00D4FF"/>
+                android:layout_marginTop="16dp" android:indeterminate="true"
+                android:indeterminateTint="#00D4FF"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     <androidx.cardview.widget.CardView android:id="@+id/log_card"
         android:layout_width="match_parent" android:layout_height="120dp"
-        android:layout_below="@id/status_card" android:layout_marginHorizontal="24dp" android:layout_marginTop="16dp"
-        app:cardBackgroundColor="#000000" app:cardCornerRadius="8dp">
-        <ScrollView android:id="@+id/log_scroll" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp">
-            <TextView android:id="@+id/tv_logs" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:fontFamily="monospace" android:text="> Inicializando..." android:textColor="#00FF00" android:textSize="12sp"/>
+        android:layout_below="@id/status_card" android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp" app:cardBackgroundColor="#000000"
+        app:cardCornerRadius="8dp">
+        <ScrollView android:id="@+id/log_scroll" android:layout_width="match_parent"
+            android:layout_height="match_parent" android:padding="10dp">
+            <TextView android:id="@+id/tv_logs" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:fontFamily="monospace"
+                android:text="> Inicializando..." android:textColor="#00FF00" android:textSize="12sp"/>
         </ScrollView>
     </androidx.cardview.widget.CardView>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_below="@id/log_card" android:layout_marginTop="24dp"
         android:orientation="vertical" android:paddingHorizontal="24dp">
-        <Button android:id="@+id/btn_bypass_dima" android:layout_width="match_parent" android:layout_height="64dp"
-            android:background="@drawable/button_primary" android:text="BYPASS DIAMANTES"
-            android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" android:elevation="4dp"/>
-        <Button android:id="@+id/btn_hide_stream" android:layout_width="match_parent" android:layout_height="64dp"
-            android:layout_marginTop="16dp" android:background="@drawable/button_secondary"
-            android:text="HIDE STREAM: OFF" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" android:elevation="4dp"/>
+        <Button android:id="@+id/btn_bypass_dima" android:layout_width="match_parent"
+            android:layout_height="64dp" android:background="@drawable/button_primary"
+            android:text="BYPASS DIAMANTES" android:textColor="#FFFFFF"
+            android:textSize="18sp" android:textStyle="bold" android:elevation="4dp"/>
+        <Button android:id="@+id/btn_hide_stream" android:layout_width="match_parent"
+            android:layout_height="64dp" android:layout_marginTop="16dp"
+            android:background="@drawable/button_secondary" android:text="HIDE STREAM: OFF"
+            android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"
+            android:elevation="4dp"/>
     </LinearLayout>
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
