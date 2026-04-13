@@ -26,7 +26,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Build Release APK
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
@@ -39,10 +39,10 @@ jobs:
           if [ -n "$KEYSTORE_FILE" ]; then
             echo "$KEYSTORE_FILE" | base64 --decode > keystore.jks
             export KEYSTORE_FILE=$(pwd)/keystore.jks
-            ./gradlew assembleRelease
+            ./gradlew assembleRelease --stacktrace
           else
             echo "No keystore configured, building unsigned release"
-            ./gradlew assembleRelease
+            ./gradlew assembleRelease --stacktrace
           fi
 
       - name: Upload Debug APK
