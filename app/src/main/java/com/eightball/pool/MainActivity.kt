@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inicializar Views
         tvStatus = findViewById(R.id.tv_status)
         tvLogs = findViewById(R.id.tv_logs)
         progressBar = findViewById(R.id.progress_bar)
@@ -55,11 +54,9 @@ class MainActivity : AppCompatActivity() {
         btnBypassDima = findViewById(R.id.btn_bypass_dima)
         btnHideStream = findViewById(R.id.btn_hide_stream)
 
-        // Configurar Listeners
         btnBypassDima.setOnClickListener { applyBypassDima() }
         btnHideStream.setOnClickListener { toggleHideStream() }
 
-        // Iniciar Verificações
         checkAndRequestPermissions()
     }
 
@@ -141,7 +138,6 @@ class MainActivity : AppCompatActivity() {
                 val patoteamDir = File(PATOTEAM_DIR)
                 if (!patoteamDir.exists()) patoteamDir.mkdirs()
 
-                // Copiar assets necessários
                 val assetsToCopy = arrayOf("pato.sh", "pato0.sh", "pato2.sh", "pato8.sh", "rish", "rish_shizuku.dex", "F.apk")
                 for (asset in assetsToCopy) {
                     copyAssetToDir(asset, PATOTEAM_DIR)
@@ -173,11 +169,8 @@ class MainActivity : AppCompatActivity() {
             addLog("Injetando payload de bypass...")
             
             withContext(Dispatchers.IO) {
-                // Executa o script de instalação por sessão para simular Play Store
                 val result = ShizukuHelper.executeScript("$PATOTEAM_DIR/pato8.sh")
                 addLog("Resultado do Sistema: $result")
-                
-                // Executa o bypass de UID
                 ShizukuHelper.executeScript("$PATOTEAM_DIR/pato2.sh")
             }
 
@@ -199,7 +192,6 @@ class MainActivity : AppCompatActivity() {
             btnHideStream.text = "HIDE STREAM: ON"
             btnHideStream.setTextColor(0xFF00FF00.toInt())
             addLog("Hide Stream Ativado: Tela protegida contra capturas.")
-            // Ativar flag de segurança para evitar capturas de tela no app
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             btnHideStream.text = "HIDE STREAM: OFF"
