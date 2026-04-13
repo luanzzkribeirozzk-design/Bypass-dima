@@ -1,4 +1,4 @@
-name: Release 8 Ball Pool APK
+name: Release LN BYPASS APK
 
 on:
   push:
@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -22,16 +22,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Get version from tag
         id: get_version
@@ -61,15 +51,15 @@ jobs:
       - name: Rename APK
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          mv app/build/outputs/apk/release/app-release*.apk app/build/outputs/apk/release/8BallPool-${VERSION}.apk || true
-          mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/8BallPool-${VERSION}-unsigned.apk || true
+          mv app/build/outputs/apk/release/app-release*.apk app/build/outputs/apk/release/LN-BYPASS-${VERSION}.apk || true
+          mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/LN-BYPASS-${VERSION}-unsigned.apk || true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          name: "8 Ball Pool ${{ steps.get_version.outputs.VERSION }}"
+          name: "LN BYPASS ${{ steps.get_version.outputs.VERSION }}"
           body: |
-            ## 8 Ball Pool ${{ steps.get_version.outputs.VERSION }}
+            ## LN BYPASS ${{ steps.get_version.outputs.VERSION }}
             
             ### Download
             Download the APK below and install on your Android device.
