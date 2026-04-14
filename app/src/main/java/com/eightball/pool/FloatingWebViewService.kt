@@ -31,11 +31,11 @@ class FloatingWebViewService : Service() {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                else
-                    WindowManager.LayoutParams.TYPE_PHONE,
+                else WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT
             ).apply { gravity = Gravity.TOP or Gravity.START }
+
             webView = WebView(this).apply {
                 settings.apply {
                     javaScriptEnabled = true
