@@ -27,31 +27,24 @@ class FloatingWebViewService : Service() {
         try {
             windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
             val params = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 else WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                PixelFormat.TRANSLUCENT
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT
             ).apply { gravity = Gravity.TOP or Gravity.START }
-
             webView = WebView(this).apply {
                 settings.apply {
-                    javaScriptEnabled = true
-                    domStorageEnabled = true
-                    loadWithOverviewMode = true
-                    useWideViewPort = true
-                    setSupportZoom(true)
-                    builtInZoomControls = true
-                    displayZoomControls = false
-                    cacheMode = WebSettings.LOAD_DEFAULT
+                    javaScriptEnabled = true; domStorageEnabled = true
+                    loadWithOverviewMode = true; useWideViewPort = true
+                    setSupportZoom(true); builtInZoomControls = true
+                    displayZoomControls = false; cacheMode = WebSettings.LOAD_DEFAULT
                 }
                 webViewClient = WebViewClient()
                 loadUrl(url)
             }
             windowManager?.addView(webView, params)
-        } catch (e: Exception) { /* ignore */ }
+        } catch (_: Exception) {}
     }
 
     override fun onDestroy() {
