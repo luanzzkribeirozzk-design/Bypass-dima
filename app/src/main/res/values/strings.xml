@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">8 Ball Pool</string>
-    <string name="app_description">LN BYPASS</string>
     <string name="btn_bypass_dima">Bypass Diamantes</string>
     <string name="btn_hide_stream">Hide Stream</string>
     <string name="status_ready">Pronto para Aplicar</string>
     <string name="status_applying">Aplicando Bypass...</string>
-    <string name="status_success">Bypass Aplicado com Sucesso!</string>
+    <string name="status_success">Bypass Aplicado!</string>
 </resources>
