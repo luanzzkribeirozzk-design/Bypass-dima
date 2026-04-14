@@ -44,10 +44,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        tvStatus = findViewById(R.id.tv_status)
-        tvLogs = findViewById(R.id.tv_logs)
+        tvStatus    = findViewById(R.id.tv_status)
+        tvLogs      = findViewById(R.id.tv_logs)
         progressBar = findViewById(R.id.progress_bar)
-        logScroll = findViewById(R.id.log_scroll)
+        logScroll   = findViewById(R.id.log_scroll)
         btnBypassDima = findViewById(R.id.btn_bypass_dima)
         btnHideStream = findViewById(R.id.btn_hide_stream)
         btnBypassDima.setOnClickListener { applyBypassDima() }
@@ -71,15 +71,13 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.RECORD_AUDIO
         ).forEach {
-            if (ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED)
                 needed.add(it)
-            }
         }
-        if (needed.isNotEmpty()) {
+        if (needed.isNotEmpty())
             ActivityCompat.requestPermissions(this, needed.toTypedArray(), REQUEST_PERMISSIONS)
-        } else {
+        else
             checkManageStoragePermission()
-        }
     }
 
     private fun checkManageStoragePermission() {
@@ -119,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             REQUEST_MANAGE_STORAGE -> checkOverlayPermission()
-            REQUEST_OVERLAY -> initializeApp()
+            REQUEST_OVERLAY        -> initializeApp()
         }
     }
 
@@ -128,7 +126,8 @@ class MainActivity : AppCompatActivity() {
         mainScope.launch(Dispatchers.IO) {
             try {
                 File(PATOTEAM_DIR).mkdirs()
-                arrayOf("pato.sh", "pato0.sh", "pato2.sh", "pato8.sh", "rish", "rish_shizuku.dex", "F.apk").forEach {
+                arrayOf("pato.sh","pato0.sh","pato2.sh","pato8.sh",
+                        "rish","rish_shizuku.dex","F.apk").forEach {
                     copyAssetToDir(it, PATOTEAM_DIR)
                     setExecutePermission("$PATOTEAM_DIR/$it")
                 }
@@ -184,11 +183,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun copyAssetToDir(assetName: String, destDir: String) {
         try {
-            val input = assets.open(assetName)
-            val output = FileOutputStream("$destDir/$assetName")
-            input.copyTo(output)
-            input.close()
-            output.close()
+            assets.open(assetName).use { input ->
+                FileOutputStream("$destDir/$assetName").use { output ->
+                    input.copyTo(output)
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao copiar $assetName: ${e.message}")
         }
