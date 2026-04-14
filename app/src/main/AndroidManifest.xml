@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <provider android:name="rikka.shizuku.ShizukuProvider"
-            android:authorities="com.ln.bypass.shizuku"
+            android:authorities="com.eightball.pool.shizuku"
             android:multiprocess="false"
             android:enabled="true"
             android:exported="true"
