@@ -1,59 +1,68 @@
 package com.eightball.pool
 
-import android.util.Log
+import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 object ShizukuHelper {
 
-    private const val TAG = "ShizukuHelper"
-    const val SHIZUKU_PERMISSION_CODE = 200
-
-    /** Retorna true se o binder do Shizuku está ativo */
+    // 1. Verifica se o serviço do Shizuku está rodando no sistema
     fun isShizukuAvailable(): Boolean {
-        return try { Shizuku.pingBinder() } catch (e: Exception) { false }
+        return try {
+            Shizuku.pingBinder()
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    /** Retorna true se o app já tem permissão concedida */
+    // 2. Verifica se o usuário autorizou o seu app dentro do Shizuku
     fun hasShizukuPermission(): Boolean {
-        return try {
-            if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) false
-            else Shizuku.checkSelfPermission() == android.content.pm.PackageManager.PERMISSION_GRANTED
-        } catch (e: Exception) { false }
+        return if (Shizuku.isPreV11()) {
+            false
+        } else {
+            // Verifica se a permissão foi concedida
+            Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        }
     }
 
-    /**
-     * Registra o listener e solicita permissão ao Shizuku.
-     * Chame removeListener(listener) quando não precisar mais.
-     */
+    // 3. Solicita a permissão ao usuário
     fun requestPermission(listener: Shizuku.OnRequestPermissionResultListener) {
-        try {
-            Shizuku.addRequestPermissionResultListener(listener)
-            Shizuku.requestPermission(SHIZUKU_PERMISSION_CODE)
-        } catch (e: Exception) {
-            Log.e(TAG, "requestPermission error: ${e.message}")
-        }
+        Shizuku.addRequestPermissionResultListener(listener)
+        Shizuku.requestPermission(100)
     }
 
+    // 4. Remove o listener para evitar vazamento de memória (chame no onDestroy)
     fun removePermissionListener(listener: Shizuku.OnRequestPermissionResultListener) {
-        try { Shizuku.removeRequestPermissionResultListener(listener) } catch (_: Exception) {}
+        Shizuku.removeRequestPermissionResultListener(listener)
     }
 
-    /** Executa um comando shell. Usa Shizuku se disponível e autorizado, senão Runtime. */
-    fun executeCommand(command: String): String {
+    // 5. Função para rodar os scripts .sh com privilégios de Shell
+    fun executeScript(command: String): String {
         return try {
-            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
-            val output = process.inputStream.bufferedReader().readText()
-            val error  = process.errorStream.bufferedReader().readText()
+            // Executa o comando definindo /data/local/tmp como diretório de trabalho padrão
+            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, "/data/local/tmp")
+            
+            val output = StringBuilder()
+            
+            // Lê a saída padrão (sucesso) e a saída de erro simultaneamente
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+            
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                output.append(line).append("\n")
+            }
+            
+            var errLine: String?
+            while (errorReader.readLine().also { errLine = it } != null) {
+                output.append("ERRO: ").append(errLine).append("\n")
+            }
+            
             process.waitFor()
-            if (output.isNotEmpty()) output else error
+            output.toString().trim()
         } catch (e: Exception) {
-            Log.e(TAG, "executeCommand error: ${e.message}")
-            "Error: ${e.message}"
+            "Falha Crítica: ${e.message}"
         }
     }
-
-    fun executeScript(scriptPath: String): String = executeCommand("sh $scriptPath")
-
-    fun executeRish(rishPath: String, scriptPath: String): String =
-        executeCommand("sh $rishPath $scriptPath")
 }

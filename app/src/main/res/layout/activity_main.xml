@@ -59,6 +59,11 @@
             android:background="@drawable/button_secondary" android:text="HIDE STREAM: OFF"
             android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"
             android:elevation="4dp"/>
+        <Button android:id="@+id/btn_upload_apk" android:layout_width="match_parent"
+            android:layout_height="64dp" android:layout_marginTop="16dp"
+            android:background="@drawable/button_secondary" android:text="UPLOAD PARA APK"
+            android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"
+            android:elevation="4dp"/>
     </LinearLayout>
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
