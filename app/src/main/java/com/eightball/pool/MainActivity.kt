@@ -10,68 +10,62 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.ScrollView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.eightball.pool.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import rikka.shizuku.Shizuku
 import java.io.File
 import java.io.FileOutputStream
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Shizuku.OnRequestPermissionResultListener {
 
     companion object {
-        private const val TAG = "LNXITER_BYPASS"
+        private const val TAG = "YGLN_BYPASS"
         private const val REQUEST_PERMS = 100
         private const val PICK_FILE_REQUEST = 101
         private const val WORKING_DIR = "/data/local/tmp"
     }
 
-    private lateinit var tvStatus: TextView
-    private lateinit var tvLogs: TextView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var logScroll: ScrollView
-    private lateinit var btnBypassDima: Button
-    private lateinit var btnHideStream: Button
-    private lateinit var btnUploadApk: Button
-
-    private var isHideStreamOn = false
+    private lateinit var binding: ActivityMainBinding
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
-
-    private val shizukuPermissionListener =
-        Shizuku.OnRequestPermissionResultListener { _, grantResult ->
-            if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                addLog("✅ Shizuku autorizado!")
-                tvStatus.text = "SHIZUKU ATIVO"
-                initializeApp()
-            } else {
-                addLog("⚠ Shizuku negado.")
-                showShizukuDeniedDialog()
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        tvStatus = findViewById(R.id.tv_status)
-        tvLogs = findViewById(R.id.tv_logs)
-        progressBar = findViewById(R.id.progress_bar)
-        logScroll = findViewById(R.id.log_scroll)
-        btnBypassDima = findViewById(R.id.btn_bypass_dima)
-        btnHideStream = findViewById(R.id.btn_hide_stream)
-        btnUploadApk = findViewById(R.id.btn_upload_apk)
+        // Botão Bypass Diamantes
+        binding.btnBypassDiamantes.setOnClickListener {
+            if (verificarShizuku()) {
+                applyBypassDima()
+            }
+        }
 
-        btnBypassDima.setOnClickListener { applyBypassDima() }
-        btnHideStream.setOnClickListener { toggleHideStream() }
-        btnUploadApk.setOnClickListener { openFilePicker() }
+        // Botão Upload para APK
+        binding.btnUploadApk.setOnClickListener {
+            if (verificarShizuku()) {
+                openFilePicker()
+            }
+        }
 
         checkAndRequestPermissions()
+    }
+
+    private fun verificarShizuku(): Boolean {
+        if (!ShizukuHelper.isShizukuAvailable()) {
+            addLog("❌ Shizuku não está rodando.")
+            binding.txtStatus.text = "SHIZUKU OFF"
+            Toast.makeText(this, "Erro: Shizuku não está a correr!", Toast.LENGTH_LONG).show()
+            return false
+        }
+        if (!ShizukuHelper.hasShizukuPermission()) {
+            ShizukuHelper.requestPermission(this)
+            return false
+        }
+        return true
     }
 
     private fun openFilePicker() {
@@ -94,16 +88,24 @@ class MainActivity : AppCompatActivity() {
         mainScope.launch(Dispatchers.IO) {
             try {
                 val inputStream = contentResolver.openInputStream(uri)
-                val outFile = File(WORKING_DIR, "F.apk")
+                val outFile = File(cacheDir, "temp_f.apk")
                 inputStream?.use { input ->
                     FileOutputStream(outFile).use { output ->
                         input.copyTo(output)
                     }
                 }
-                setExecutePermission(outFile.absolutePath)
+                
+                // Usar Shizuku para mover para /data/local/tmp
+                val moveCmd = "cp ${outFile.absolutePath} $WORKING_DIR/F.apk && chmod 777 $WORKING_DIR/F.apk"
+                val res = ShizukuHelper.executeScript(moveCmd)
+                
                 withContext(Dispatchers.Main) {
-                    addLog("✅ Arquivo transformado em F.apk com sucesso!")
-                    Toast.makeText(this@MainActivity, "Upload concluído!", Toast.LENGTH_SHORT).show()
+                    if (res.contains("Permission denied") || res.contains("error")) {
+                        addLog("❌ Erro ao mover arquivo: $res")
+                    } else {
+                        addLog("✅ Arquivo transformado em F.apk com sucesso!")
+                        Toast.makeText(this@MainActivity, "Upload concluído!", Toast.LENGTH_SHORT).show()
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -113,65 +115,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeApp() {
-        addLog("Extraindo recursos Lnxiter...")
-        mainScope.launch(Dispatchers.IO) {
-            try {
-                val assetsToCopy = arrayOf(
-                    "lnxiter.sh", "lnxiter0.sh", "lnxiter1.sh", "lnxiter2.sh",
-                    "lnxiter3.sh", "lnxiter6.sh", "lnxiter7.sh", "lnxiter8.sh",
-                    "F.apk", "rish", "rish_shizuku.dex"
-                )
-
-                assetsToCopy.forEach { fileName ->
-                    copyAssetToDir(fileName, WORKING_DIR)
-                    setExecutePermission("$WORKING_DIR/$fileName")
-                }
-
-                withContext(Dispatchers.Main) {
-                    tvStatus.text = "SISTEMA PRONTO"
-                    progressBar.isIndeterminate = false
-                    progressBar.progress = 100
-                    addLog("Recursos prontos no diretório tmp.")
-                }
-            } catch (e: Exception) {
-                addLog("Erro na extração: ${e.message}")
-            }
-        }
-    }
-
     private fun applyBypassDima() {
-        if (!ShizukuHelper.isShizukuAvailable() || !ShizukuHelper.hasShizukuPermission()) {
-            showShizukuDeniedDialog()
-            return
-        }
-
         mainScope.launch {
-            tvStatus.text = "EXECUTANDO..."
-            progressBar.isIndeterminate = true
-            btnBypassDima.isEnabled = false
+            binding.txtStatus.text = "EXECUTANDO..."
+            binding.progress_bar.isIndeterminate = true
+            binding.btnBypassDiamantes.isEnabled = false
             
             addLog("Iniciando sequência de segurança...")
 
             withContext(Dispatchers.IO) {
-                addLog("> Desativando conexão...")
+                // 1. Mudar instalador
+                addLog("> Alterando origem para Play Store...")
+                ShizukuHelper.executeScript("pm set-installer com.dts.freefiremax com.android.vending")
+                
+                // 2. Executar scripts lnxiter se existirem
+                addLog("> Aplicando camuflagem e injeção...")
                 ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter1.sh")
                 delay(500)
-
-                addLog("> Aplicando camuflagem...")
                 ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter6.sh")
-
-                addLog("> Executando Bypass de Sessão...")
-                val res8 = ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter8.sh")
-                addLog(res8)
-
-                addLog("> Forçando assinatura Play Store...")
+                ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter8.sh")
                 ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter2.sh")
-
-                addLog("> Injetando Payload...")
                 ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter.sh")
-
-                addLog("> Limpando rastros...")
                 ShizukuHelper.executeScript("sh $WORKING_DIR/lnxiter7.sh")
                 
                 addLog("> Abrindo Free Fire Max...")
@@ -179,71 +143,41 @@ class MainActivity : AppCompatActivity() {
             }
 
             addLog("✅ Bypass finalizado!")
-            tvStatus.text = "BYPASS ATIVO"
-            progressBar.isIndeterminate = false
-            btnBypassDima.isEnabled = true
-        }
-    }
-
-    private fun copyAssetToDir(assetName: String, destDir: String) {
-        try {
-            val outFile = File(destDir, assetName)
-            assets.open(assetName).use { input ->
-                FileOutputStream(outFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Erro ao copiar $assetName: ${e.message}")
-        }
-    }
-
-    private fun setExecutePermission(path: String) {
-        try {
-            Runtime.getRuntime().exec("chmod 777 $path")
-        } catch (e: Exception) {
-            Log.e(TAG, "Erro permissão: ${e.message}")
+            binding.txtStatus.text = "BYPASS ATIVO ✅"
+            binding.progress_bar.isIndeterminate = false
+            binding.btnBypassDiamantes.isEnabled = true
         }
     }
 
     private fun addLog(message: String) {
         runOnUiThread {
-            tvLogs.append("\n> $message")
-            logScroll.post { logScroll.fullScroll(View.FOCUS_DOWN) }
-        }
-    }
-
-    private fun toggleHideStream() {
-        isHideStreamOn = !isHideStreamOn
-        if (isHideStreamOn) {
-            btnHideStream.text = "HIDE STREAM: ON"
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            addLog("Gravação de tela bloqueada.")
-        } else {
-            btnHideStream.text = "HIDE STREAM: OFF"
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            addLog("Gravação de tela permitida.")
+            binding.txtLogs.append("\n> $message")
+            binding.log_scroll.post { binding.log_scroll.fullScroll(View.FOCUS_DOWN) }
         }
     }
 
     private fun checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMS)
-        } else {
-            checkShizukuPermission()
         }
     }
 
-    private fun checkShizukuPermission() {
-        if (!ShizukuHelper.isShizukuAvailable()) {
-            tvStatus.text = "SHIZUKU OFF"
-            addLog("❌ Shizuku não está rodando.")
-        } else if (ShizukuHelper.hasShizukuPermission()) {
-            tvStatus.text = "SHIZUKU ATIVO"
-            initializeApp()
+    override fun onRequestPermissionResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_PERMS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addLog("✅ Permissão de armazenamento concedida.")
+            }
+        }
+    }
+
+    override fun onPermissionResult(requestCode: Int, grantResult: Int) {
+        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+            addLog("✅ Shizuku autorizado!")
+            binding.txtStatus.text = "SHIZUKU ATIVO"
         } else {
-            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
-            Shizuku.requestPermission(REQUEST_PERMS)
+            addLog("⚠ Shizuku negado.")
+            showShizukuDeniedDialog()
         }
     }
 
@@ -258,6 +192,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mainScope.cancel()
-        Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
+        ShizukuHelper.removePermissionListener(this)
     }
 }
